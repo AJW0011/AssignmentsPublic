@@ -1,0 +1,229 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <meta charset='utf-8' />
+     <title>Owners vs Renters Swipe Map</title>
+     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js'></script>
+     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css' rel='stylesheet' />
+		
+     <!-- JS and CSS for the swipe plugin -->
+     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js'></script>
+     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css' type='text/css' />
+      <style>
+      body { margin:0; padding:0;overflow: hidden;}
+      body * {
+         -webkit-touch-callout: none;
+           -webkit-user-select: none;
+          -moz-user-select: none;
+           -ms-user-select: none;
+               user-select: none;
+          }
+		 
+      .map {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 100%;
+          }
+/*title */
+      #title { z-index: 9999; 
+         background-color:white; 
+         opacity: 80%; 
+         text-align: center 
+     }   
+                  
+          }
+/* description panel*/
+           /*  stlye for paragraph tags */
+   p {
+     color: white;
+    margin-left: 10px;
+   }
+   /* style for heading level 4 tags */
+   h4 {
+     color: white;
+     margin-left: 10px;
+   }
+
+  
+   /*  style for items with the class "descriptionPanel" */
+   .descriptionPanel {
+     position: absolute;
+     bottom: 65px;
+     left: 20px;
+     z-index: 2;
+     width: 300px;
+     height: 40px;
+     background: rgba(80, 80, 80, .75);
+     transition: width 2s, height 2s;
+     overflow: hidden;
+     border-radius: 7px;
+   }
+   /*  style for items with the class "descriptionPanel" when active */
+   .LegendContainer:active {
+     width: 240px;
+     height: 250px;
+   }
+   /* style for items with the class "legendItem" */
+   .legendItem {
+       margin: 0px;
+       padding-left: 10px;
+       display:inline-block;
+       margin:auto;
+       transform: translate(50%, 50%);
+   }
+   
+      </style>
+ </head>
+ <body>
+     <div id="comparison-container">
+      		<div id='owners' class='map'></div>  <!-- div for owners map div -->
+      		<div id='renters' class='map'></div> <!--  div for renters map div -->
+<!--         title -->
+              <div id='title'>
+     		<h1>Ownership and Rental % In Portland</h1>
+ 	</div>
+         
+<!--  	description panel 	-->
+     </div>
+       <div class="descriptionPanel" id="descriptionPanel" style="height: 250px;">
+     <hr/>
+     <h4>WHAT DOES THIS MAP SHOW?</h4>
+     <p>
+       This is a map showing the percentage of people in Portland who own or rent their home. Drag the slider to the right to see how many own their homes, and drag to the left to see renters.
+     </p>
+   </div>
+<!--     legend -->
+     
+     <script>
+       //add your Mapbox access token and map variable here!
+          mapboxgl.accessToken = 'pk.eyJ1IjoiYWp3MDAxMSIsImEiOiJjbHVsazc5bTgwMTd5Mmpva3Axc2x5Mjc5In0.KBuprNTg5z4as4twIVgsAA';
+ 
+         
+//  var declarations
+    var ownerMap = new mapboxgl.Map({
+         container: 'owners', // owners map div 
+         style: 'mapbox://styles/mapbox/dark-v10', // Mapbox dark style 
+         center: [-122.676483, 45.523064], 
+         zoom: 10
+ }); 
+         
+    var renterMap = new mapboxgl.Map({
+        container: 'renters', // owners map div 
+        style: 'mapbox://styles/mapbox/dark-v10', 
+        center: [-122.676483, 45.523064],
+        zoom: 10 
+});
+        // calls the mapbox map slider plugin
+        var container = '#comparison-container';
+        var map = new mapboxgl.Compare(ownerMap, renterMap, container, {
+ })
+         
+// on load functions
+        //once map has loaded, fill polygons with the colorscheme below
+
+    ownerMap.on('load', function() {
+        ownerMap.addLayer({
+            id: 'Owner Data',
+            type: "fill",
+            source: {
+            type: 'vector',
+            url: 'mapbox://ajw0011.4tq5ippu'  //input your tileset ID url e.g. 'mapbox://jomerson.6ykhlovc' 
+          },
+            'source-layer': 'Owner-Renter-Pop-2u70az', //input your source layer name e.g. 'Owner-Renter-Pop-ca08iw'
+          paint: {
+                 'fill-color':
+                   ["step",
+                    ["get", "Own"],
+                    "hsl(225, 100%, 97%)",
+                    17.0,
+                    "hsl(203, 47%, 82%)",
+                    22.0,
+                    "hsl(202, 57%, 63%)",
+                    27.0,
+                    "#3182bd",
+                    32.0,
+                     "hsl(210, 90%, 32%)"
+                   ],
+                   "fill-opacity": 0.7
+               }       
+        });
+     });
+//once map has loaded, fill polygons with the colorscheme below
+    renterMap.on('load', function() {
+        renterMap.addLayer({
+          id: 'Renter Data',
+          type: "fill",
+          source: {
+            type: 'vector',
+            url: 'mapbox://ajw0011.4tq5ippu' //input your tileset ID URL
+          },
+            'source-layer': 'Owner-Renter-Pop-2u70az', //input your source layer name e.g. Owner-Renter-Pop-dr7310
+          paint: {
+            'fill-color':  
+                ["step",
+           ["get", "Rent"],
+           "hsl(225, 100%, 97%)",
+           17.0,
+           "hsl(203, 47%, 82%)",
+           22.0,
+           "hsl(202, 57%, 63%)",
+           27.0,
+           "#3182bd",
+           32.0,
+            "hsl(210, 90%, 32%)"],
+           "fill-opacity": 0.7       
+          }
+     });
+    });
+         
+// Create a popup, but don't add it to the map yet.
+     var popup = new mapboxgl.Popup({
+         closeButton: false,
+         closeOnClick: false
+         });
+
+    renterMap.on('mousemove', 'Renter Data', function (e) {
+
+         // Change the cursor style as a UI indicator.
+        renterMap.getCanvas().style.cursor = 'pointer';
+
+             var coordinates = e.lngLat;
+             var description = e.features[0].properties.Rent;
+
+             // Populate the popup and set its coordinates
+             // based on the feature found.
+             popup.setLngLat(coordinates)
+                 .setHTML("Renters: " + description + "%")
+                 .addTo(renterMap);
+         });
+
+         renterMap.on('mouseleave', 'Renter Data', function () {
+            renterMap.getCanvas().style.cursor = '';
+            popup.remove();
+         });
+
+    ownerMap.on('mousemove', 'Owner Data', function (e) {
+
+         // Change the cursor style as a UI indicator.
+         ownerMap.getCanvas().style.cursor = 'pointer';
+
+         var coordinates = e.lngLat;
+         var description = e.features[0].properties.Own;
+
+         // Populate the popup and set its coordinates
+         // based on the feature found.
+         popup.setLngLat(coordinates)
+            .setHTML(" Owners " + description + "%")
+            .addTo(ownerMap);
+        });
+
+        ownerMap.on('mouseleave', 'Owner Data', function () {
+         ownerMap.getCanvas().style.cursor = '';
+         popup.remove();
+    });
+     </script>
+
+     </body>
+ </html>
